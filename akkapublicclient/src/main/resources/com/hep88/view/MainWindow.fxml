@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../style/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hep88.view.MainWindowController">
+   <top>
+      <AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="inviteBackground" stylesheets="@../style/style.css" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane layoutX="107.0" layoutY="350.0" prefHeight="331.0" prefWidth="1066.0">
+               <children>
+                  <Button alignment="CENTER" contentDisplay="CENTER" layoutX="450.0" layoutY="148.0" mnemonicParsing="false" onAction="#howToStart" prefHeight="35.0" prefWidth="167.0" styleClass="button2" text="How To Start Game" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <DropShadow color="#7bcae7" radius="13.5" width="35.0">
+                           <input>
+                              <Glow />
+                           </input>
+                        </DropShadow>
+                     </effect>
+                  </Button>
+                  <Label alignment="CENTER" layoutX="76.0" layoutY="8.0" prefHeight="48.0" prefWidth="202.0" text="Players connected to server:" textFill="WHITE">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <Glow level="0.73" />
+                     </effect>
+                  </Label>
+                  <Label alignment="CENTER" layoutX="656.0" layoutY="6.0" prefHeight="52.0" prefWidth="282.0" text="Players who are in the same game room:" textFill="WHITE">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <Glow level="0.73" />
+                     </effect>
+                  </Label>
+               </children></AnchorPane>
+            <GridPane alignment="CENTER" layoutX="560.0" layoutY="450.0" prefHeight="32.0" prefWidth="194.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleCreateGame" prefHeight="34.0" prefWidth="65.0" styleClass="button2" text="Invite" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <DropShadow color="#7bcae7" radius="13.5" width="35.0">
+                           <input>
+                              <Glow />
+                           </input>
+                        </DropShadow>
+                     </effect>
+                  </Button>
+                  <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleLeaveGameRoom" prefHeight="34.0" prefWidth="65.0" styleClass="button2" text="Leave" textFill="WHITE" GridPane.columnIndex="1">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <DropShadow color="#7bcae7" radius="13.5" width="35.0">
+                           <input>
+                              <Glow />
+                           </input>
+                        </DropShadow>
+                     </effect>
+                  </Button>
+               </children>
+            </GridPane>
+            <ListView fx:id="listGameRoom" layoutX="763.0" layoutY="405.0" prefHeight="130.0" prefWidth="335.0" styleClass="list" />
+            <ListView fx:id="listUser" layoutX="184.0" layoutY="405.0" prefHeight="130.0" prefWidth="335.0" styleClass="list" />
+            <Button fx:id="Start" layoutX="426.0" layoutY="599.0" mnemonicParsing="false" onAction="#startGame" prefHeight="47.0" prefWidth="429.0" text="Start Game">
+               <font>
+                  <Font name="Century Gothic" size="24.0" />
+               </font>
+               <effect>
+                  <DropShadow blurType="TWO_PASS_BOX" color="#54aacc" height="138.67" radius="73.9725" width="159.22" />
+               </effect>
+            </Button>
+            <Label fx:id="lblStatus" alignment="CENTER" layoutX="586.0" layoutY="104.0" prefHeight="46.0" prefWidth="108.0" text="Disconnected" textFill="WHITE">
+               <font>
+                  <Font name="Century Gothic" size="14.0" />
+               </font>
+               <effect>
+                  <Glow level="0.73" />
+               </effect>
+            </Label>
+            <Button fx:id="joinLobby" contentDisplay="CENTER" layoutX="487.0" layoutY="72.0" mnemonicParsing="false" onAction="#handleJoin" prefHeight="38.0" prefWidth="306.0" styleClass="button2" text="Join Lobby" textFill="WHITE">
+               <font>
+                  <Font name="Century Gothic" size="16.0" />
+               </font>
+               <effect>
+                  <DropShadow color="#54aacc" />
+               </effect>
+            </Button>
+            <AnchorPane layoutX="262.0" layoutY="141.0" prefHeight="240.0" prefWidth="757.0">
+               <children>
+                  <AnchorPane layoutX="268.0" layoutY="14.0" prefHeight="48.0" prefWidth="203.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="7.0" layoutY="-5.0" prefHeight="45.0" prefWidth="215.0" text="Game Rules" textAlignment="CENTER" textFill="WHITE">
+                           <font>
+                              <Font name="Century Gothic" size="35.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+                  <GridPane layoutX="16.0" layoutY="54.0" prefHeight="165.0" prefWidth="732.0">
+                     <columnConstraints>
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="255.0" minWidth="10.0" prefWidth="50.0" />
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="682.0" minWidth="10.0" prefWidth="682.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label text="1" textFill="WHITE" />
+                        <Label text="2" textFill="WHITE" GridPane.rowIndex="1" />
+                        <Label text="3" textFill="WHITE" GridPane.rowIndex="2" />
+                        <Label text="4" textFill="WHITE" GridPane.rowIndex="3" />
+                        <Label text="5" textFill="WHITE" GridPane.rowIndex="4" />
+                        <Label fx:id="rule1Label" textFill="WHITE" GridPane.columnIndex="1" />
+                        <Label fx:id="rule2Label" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label fx:id="rule3Label" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label fx:id="rule4Label" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label fx:id="rule5Label" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     </children>
+                  </GridPane>
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+   </top>
+</BorderPane>
