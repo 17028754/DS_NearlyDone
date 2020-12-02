@@ -1,14 +1,14 @@
 package com.hep88.view
 
 import akka.actor.typed.ActorRef
-import com.hep88.{GameClient, Client, ClientRef}
+import com.hep88.{Client, ClientRef, GameClient, MainWindow}
 import com.hep88.model.{GaiaGame, ScalaFXSound}
 import scalafx.Includes._
 import scalafx.animation._
 import scalafx.application.Platform
 import scalafx.event.ActionEvent
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Label, TextField}
+import scalafx.scene.control.{Alert, Label}
 import scalafx.scene.input.{KeyCode, KeyEvent}
 import scalafx.scene.layout.{AnchorPane, GridPane}
 import scalafx.scene.shape.Rectangle
@@ -51,16 +51,41 @@ class GaiaGameController(
   var serverRef: Option[ActorRef[GameClient.Command]] = ClientRef.serverRef
   var gameOverOpponent = false
   var opponentScore = 0
+  var checkPlayerLeft: Boolean = false
 
 
   // if press back button, go back to Main
-  // Things to do here:
-  // 1. Cannot leave in the middle of the game
-  // 2. Can only leave and go back to main lobby when both player ends
   def handleBack(action: ActionEvent): Unit = {
     timer.stop
     pause = true
-//    MainWindow.test()
+    // To notify "I left the game" when both clients are still playing
+    if (checkPlayerLeft == false && gameOverOpponent == false && gameOver == false){
+      Client.userRef ! GameClient.SendPlayerQuit(clientRef)
+    }
+    // To notify "I left the game" when  my game is over but opponent is still playing
+    else if (checkPlayerLeft == false && gameOverOpponent == false && gameOver == true){
+      Client.userRef ! GameClient.SendPlayerQuit(clientRef)
+    }
+    // To notify "I left the game" when opponent game is over but mine is still playing
+    else if (checkPlayerLeft == false && gameOverOpponent == true && gameOver == false){
+      Client.userRef ! GameClient.SendPlayerQuit(clientRef)
+    }
+    MainWindow.test()
+  }
+
+  def playerQuit(): Unit = {
+    serverRef map (_ ! GameClient.GameCompleted(clientName, clientRef, ownName, ownRef))
+    timer.stop
+    pause = true
+    checkPlayerLeft = true
+    val alert = new Alert(AlertType.Information){
+      title = "Game over"
+      headerText = "Enemy left the game."
+      contentText = "Your score: " + game.scores.toString + "\nOpponent score: " + opponentScore.toString
+    }
+    Platform.runLater(alert.showAndWait())
+    showPaused.setText("Game Over!")
+    gameOverSoundEffect()
   }
 
   def omissionOccured(): Unit = {

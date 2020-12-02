@@ -15,4 +15,8 @@ object ClientRef {
 
   var serverRef: Option[ActorRef[GameClient.Command]] = None
 
+  var listUser: Iterable[User] = None
+
+  var fxmlCounter: Int = 0
+
 }

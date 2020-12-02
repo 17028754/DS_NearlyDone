@@ -70,11 +70,13 @@ object ChatServer {
           val player1 = User(name1, ref1)
           val player2 = User(name2, ref2)
           gameRooms++= List(player1, player2)
+//          println("\n\nDEBUG JOIN GAME: " + gameRooms + "\n\n")
           Behaviors.same
         case GameCompleted(name1, ref1, name2, ref2) =>
           val player1 = User(name1, ref1)
           val player2 = User(name2, ref2)
           gameRooms-= (player1, player2)
+//          println("\n\nDEBUG COMPLETED/LEAVE GAME: " + gameRooms + "\n\n")
           Behaviors.same
       }
     }

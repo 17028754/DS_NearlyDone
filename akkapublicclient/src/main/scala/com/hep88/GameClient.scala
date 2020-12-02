@@ -35,7 +35,7 @@ object GameClient {
   members.onChange{(ns, _) =>
     Platform.runLater {
         MainWindow.control.updateList(ns.toList.filter(y => ! unreachables.exists (x => x == y.ref.path.address)))
-    }  
+    }
   }
 
   val membersInGameRoom = new ObservableHashSet[User]()
@@ -94,7 +94,11 @@ object GameClient {
   final case class TerminateGame() extends Command
 
   // Remove omission list in server
-  case class GameCompleted(name1: String, target1: ActorRef[GameClient.Command], name2: String, target2: ActorRef[GameClient.Command]) extends Command
+  final case class GameCompleted(name1: String, target1: ActorRef[GameClient.Command], name2: String, target2: ActorRef[GameClient.Command]) extends Command
+
+  // Handle when a player quits game by returning to lobby and not closing the game
+  final case class SendPlayerQuit(target: ActorRef[GameClient.Command]) extends  Command
+  final case class ReceivePlayerQuit() extends  Command
 
   // Animation for next piece - tell other client (part 1)
   final case class TellNextPiece(target: ActorRef[GameClient.Command], nextPiece: List[List[Array[Int]]]) extends Command
@@ -256,6 +260,16 @@ object GameClient {
               Behaviors.same
             case GameCompleted(name1, target1, name2, target2) =>
               remoteOpt.map ( _! ChatServer.GameCompleted(name1, target1, name2, target2))
+              Behaviors.same
+
+              // Handle client when a player quits
+            case SendPlayerQuit(target) =>
+              target ! ReceivePlayerQuit()
+              Behaviors.same
+            case ReceivePlayerQuit() =>
+              Platform.runLater{
+                GameBoard.control.playerQuit()
+              }
               Behaviors.same
 
               // Animation - tell next piece

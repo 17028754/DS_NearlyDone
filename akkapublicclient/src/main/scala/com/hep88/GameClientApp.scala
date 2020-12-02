@@ -19,15 +19,15 @@ import scala.concurrent.duration._
 
 object Client extends JFXApp {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
-    val config = ConfigFactory.load()
-   val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askDevConfig().withFallback(config))
+  val config = ConfigFactory.load()
+  val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askDevConfig().withFallback(config))
   val greeterMain: ActorSystem[Nothing] = mainSystem.toTyped
 
   val cluster = Cluster(greeterMain)
 
   val discovery: ServiceDiscovery = Discovery(mainSystem).discovery
 
- val userRef = mainSystem.spawn(GameClient(), "ChatClient")
+  val userRef = mainSystem.spawn(GameClient(), "ChatClient")
 
   // To join internet
  def joinPublicSeedNode(): Unit = {

@@ -1,9 +1,9 @@
 package com.hep88.view
 
 import akka.actor.typed.ActorRef
-import com.hep88.{GameClient, ClientRef, MainWindow}
+import com.hep88.{ClientRef, GameClient, MainWindow}
 import scalafx.event.ActionEvent
-import scalafx.scene.control.{TextField}
+import scalafx.scene.control.TextField
 import scalafxml.core.macros.sfxml
 
 @sfxml

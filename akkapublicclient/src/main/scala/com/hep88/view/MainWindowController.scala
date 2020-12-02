@@ -38,6 +38,10 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
 
     showRules()
 
+    if (ClientRef.listUser != None){
+      updateList(ClientRef.listUser)
+    }
+
     def showRules(): Unit ={
       rule1Label.text = "This goal of this game is to get as many tetris blocks on the tree branch.\n"
       rule2Label.text = "The tree branch is brown and its located in the middle, lower part of the entire board.\n"
@@ -77,6 +81,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     }
   def updateList(x: Iterable[User]): Unit ={
     listUser.items = new ObservableBuffer[User]() ++= x
+    ClientRef.listUser = x
   }
 
   def displayLeaveGameRoom(): Unit = {
@@ -232,7 +237,13 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     ClientRef.ownRef = ClientRef.toOption(Client.userRef)
     ClientRef.ownName = userName
     ClientRef.serverRef = chatClientRef
-    GameBoard
+    if (ClientRef.fxmlCounter == 0){
+      ClientRef.fxmlCounter+= 1
+      GameBoard
+    }
+    else{
+      GameBoard.test()
+    }
   }
 
 }
