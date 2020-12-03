@@ -12,6 +12,7 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafxml.core.{FXMLLoader, NoDependencyResolver}
 import scalafx.Includes._
+import scalafx.scene.image.Image
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -57,6 +58,8 @@ object Client extends JFXApp {
   val border = loader.getRoot[javafx.scene.layout.BorderPane]
 
   stage = new PrimaryStage() {
+    title = "Tetris"
+    icons += new Image(getClass.getResource("img/favicon.png").toURI.toString)
     scene = new Scene(){
       root = border
     }
