@@ -24,6 +24,10 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
 
     var invGame: Boolean = true
 
+    var playerInvStatus: Boolean = true
+
+    var checkStatus: Boolean = false
+
     var startGame: Boolean = false
 
     var chatClientRef: Option[ActorRef[GameClient.Command]] = None
@@ -112,12 +116,55 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     }
   }
 
-  // Special case to take note:
-  // 2. Implement a leave game feature, and update the list
-  // Create game
+  def updateSuddenleave(x: Iterable[User]): Unit = {
+    listGameRoom.items = new ObservableBuffer[User]() ++= x
+    invGame = true
+    startGame = false
+    membersInGame.clear()
+  }
+
+
+  def checkPlayerInvitation(status: Boolean): Unit = {
+    if (status == true){
+      checkStatus = true
+      new Alert(AlertType.Information) {
+        initOwner(stage)
+        title = "Warning Dialog"
+        headerText = "Player can be invited!"
+        contentText = "Please proceed to invite player into game."
+      }.showAndWait()
+    }else{
+      new Alert(AlertType.Warning) {
+        initOwner(stage)
+        title = "Warning Dialog"
+        headerText = "Player you want to invite is already in a game room!"
+        contentText = "Please invite another player.\nMax participant per game room: 2"
+      }.showAndWait()
+    }
+  }
+
+  def checkPlayerStatus(actionEvent: ActionEvent): Unit = {
+    if (listUser.selectionModel().selectedIndex.value < 0
+      || listUser.selectionModel().selectedItem.value.ref == Client.userRef) {
+
+      // warning dialog
+      new Alert(AlertType.Warning) {
+        initOwner(stage)
+        title = "Warning Dialog"
+        headerText = "Unable to check player's status!"
+        contentText = "Please choose other player's username!"
+      }.showAndWait()
+    }
+    else{
+      listUser.selectionModel().selectedItem.value.ref ! GameClient.SendInvitationCheck(Client.userRef)
+      clientRef = listUser.selectionModel().selectedItem.value.ref
+    }
+  }
+
+
   def handleCreateGame(actionEvent: ActionEvent): Unit = {
     // Don't let user create/invite another player when user is already in a game room with another player
-    if (invGame == false){
+    if (invGame == false) {
       new Alert(AlertType.Warning) {
         initOwner(stage)
         title = "Warning Dialog"
@@ -125,35 +172,43 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
         contentText = "Please leave current game room to invite the player you want to play with!\nMax participant per game room: 2"
       }.showAndWait()
     }
-    else{
-      // In case user selected own username or that the list was empty
-      if (listUser.selectionModel().selectedIndex.value < 0
-        || listUser.selectionModel().selectedItem.value.ref == Client.userRef){
+    else if (checkStatus == false){
+      // warning dialog
+      new Alert(AlertType.Warning) {
+        initOwner(stage)
+        title = "Warning Dialog"
+        headerText = "Please check if player can be invited by using Check Status!"
+        contentText = "1. Please click on other player's username.\n2. Press Check Status.\n" +
+          "3. If player can be invited then you can proceed to invite the player. Otherwise, please choose another player."
+      }.showAndWait()
+    }else {
+      if (listUser.selectionModel().selectedItem.value.ref != clientRef) {
 
         // warning dialog
         new Alert(AlertType.Warning) {
           initOwner(stage)
           title = "Warning Dialog"
           headerText = "Unable to Invite to Game!"
-          contentText = "Please choose other player's username!"
+          contentText = "Please choose the player's username that you have checked the status for!"
         }.showAndWait()
       }
       else {
-        // Store information for omission during game, and to notify client in cluster about game invitation
-        clientRef = listUser.selectionModel().selectedItem.value.ref
-        clientName = listUser.selectionModel().selectedItem.value.name
-        // Send invitation to client in cluster
-        Client.userRef ! GameClient.SendInvitation(clientRef, userName)
-        // Need to notify all the clients, call the function in ChatClient object that updates all the clients about a new game created
-        // At the moment, notify one selected client
+          // Store information for omission during game, and to notify client in cluster about game invitation
+          clientRef = listUser.selectionModel().selectedItem.value.ref
+          clientName = listUser.selectionModel().selectedItem.value.name
+          // Send invitation to client in cluster
+          Client.userRef ! GameClient.SendInvitation(clientRef, userName)
+          // Need to notify all the clients, call the function in ChatClient object that updates all the clients about a new game created
+          // At the moment, notify one selected client
 
-        // notification dialog
-        new Alert(AlertType.Information){
-          initOwner(stage)
-          title = "Information Dialog"
-          headerText = "Invitation sent!"
-          contentText = "Please wait for " + clientName + " to accept or reject your invite, you will be notified accordingly."
-        }.showAndWait()
+          // notification dialog
+          new Alert(AlertType.Information) {
+            initOwner(stage)
+            title = "Information Dialog"
+            headerText = "Invitation sent!"
+            contentText = "Please wait for " + clientName + " to accept or reject your invite, you will be notified accordingly."
+          }.showAndWait()
+
       }
     }
   }
@@ -179,6 +234,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
                                   clientRef = actorRef
                                   clientName = name
                                   invGame = false
+                                  ClientRef.canBeInvited = false
 
         // Reject invitation
       case _ => Client.userRef ! GameClient.RejectInvitation(actorRef)
@@ -187,6 +243,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
 
   def displayInvitationResult(result: Boolean): Unit = {
     if(result == true){
+      ClientRef.canBeInvited = false
       invGame = false
       startGame = true
       membersInGame += User(clientName, clientRef)
@@ -199,6 +256,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
         contentText = "Press Start Game to begin the game."
       }.showAndWait()
     }else{
+      checkStatus = false
       new Alert(AlertType.Information){
         initOwner(stage)
         title = "Information Dialog"
@@ -223,6 +281,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
         contentText = "Please invite other player to be eligible to start game!\nNote: Only people who send invitation can start the game."
       }.showAndWait()
     }else{
+      checkStatus = false
       chatClientRef map (_ ! GameClient.GameOmission(clientName, clientRef, userName, Client.userRef))
       Client.userRef ! GameClient.StartGame(clientRef)
     }

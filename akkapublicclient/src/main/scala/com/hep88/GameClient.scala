@@ -33,8 +33,21 @@ object GameClient {
 
   val members = new ObservableHashSet[User]()
   members.onChange{(ns, _) =>
+    val checkList = membersInGameRoom.toList.map(_.toString)
+    var changeGameRoom = false
+    for(member <- ns){
+      if (checkList.contains(member.name)){
+        changeGameRoom = true
+      }
+    }
     Platform.runLater {
         MainWindow.control.updateList(ns.toList.filter(y => ! unreachables.exists (x => x == y.ref.path.address)))
+    }
+    if (changeGameRoom == true){
+      membersInGameRoom.clear()
+      Platform.runLater{
+        MainWindow.control.updateSuddenleave(membersInGameRoom.toList)
+      }
     }
   }
 
@@ -51,6 +64,11 @@ object GameClient {
   // Help start to check for omission during game
   case class GameOmission(name1: String, target1: ActorRef[GameClient.Command], name2: String, target2: ActorRef[GameClient.Command]) extends Command
 
+  // Handling invitation error test case (e.g. inv player that is already in game)
+  final case class SendInvitationCheck(target: ActorRef[GameClient.Command]) extends Command
+  final case class ReceiveInvitationCheck(status: Boolean) extends Command
+
+
   // Sending and receive invitation
   final case class SendInvitation(target: ActorRef[GameClient.Command], name: String) extends Command
   final case class ReceiveInvitation(name: String, from: ActorRef[GameClient.Command]) extends Command
@@ -65,7 +83,6 @@ object GameClient {
   // Update game room list when a player choose to leave game room
   final case class LeaveGameRoomList(target: ActorRef[GameClient.Command], list: Iterable[User]) extends Command
   final case class ReceiveLeaveGameRoomList(list: Iterable[User]) extends Command
-
   // Starting game
   final case class StartGame(target: ActorRef[GameClient.Command]) extends Command
   final case class ClientStartR(target: ActorRef[GameClient.Command]) extends Command
@@ -137,6 +154,18 @@ object GameClient {
               members.clear()
               members ++= list
               Behaviors.same
+
+            // Check if player can be invited
+            case SendInvitationCheck(target) =>
+              target ! ReceiveInvitationCheck(ClientRef.canBeInvited)
+              Behaviors.same
+            case ReceiveInvitationCheck(status) =>
+              Platform.runLater{
+                MainWindow.control.checkPlayerInvitation(status)
+              }
+              Behaviors.same
+
+
             // Sending invitation
             case SendInvitation(target, name) =>
                 target ! ReceiveInvitation(name, context.self)

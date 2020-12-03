@@ -12,11 +12,12 @@ object MyConfiguration {
         val ipRaw = Array(192, 168, 0, 154)
         val inetAddress = InetAddress.getByAddress(ipRaw.map(x => x.toByte))
         localAddress = Some(inetAddress)
-        runLocalOnly = Some(true)
+        runLocalOnly = Some(false)
         println("please enter port to bind")
 
         val port = scala.io.StdIn.readLine.toInt
-         MyConfiguration(localAddress.get.getHostAddress(), "", port.toString)
+         MyConfiguration("175.139.15.206", localAddress.get.getHostAddress(), port.toString)
+
 
     }
     def askForConfig(): Config = {

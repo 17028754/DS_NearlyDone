@@ -70,6 +70,7 @@ class GaiaGameController(
     else if (checkPlayerLeft == false && gameOverOpponent == true && gameOver == false){
       Client.userRef ! GameClient.SendPlayerQuit(clientRef)
     }
+    ClientRef.canBeInvited = true
     MainWindow.test()
   }
 

@@ -31,7 +31,6 @@ object ChatServer {
     }
   }
 
-
   var gameRooms = new ListBuffer[User]()
 
 

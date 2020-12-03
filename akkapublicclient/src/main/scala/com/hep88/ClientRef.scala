@@ -19,4 +19,6 @@ object ClientRef {
 
   var fxmlCounter: Int = 0
 
+  var canBeInvited: Boolean = true
+
 }

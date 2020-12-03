@@ -46,6 +46,18 @@
                         <Glow level="0.73" />
                      </effect>
                   </Label>
+                  <Button alignment="CENTER" contentDisplay="CENTER" layoutX="450.0" layoutY="54.0" mnemonicParsing="false" onAction="#checkPlayerStatus" prefHeight="35.0" prefWidth="167.0" styleClass="button2" text="Check Status" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                     <effect>
+                        <DropShadow color="#7bcae7" radius="13.5" width="35.0">
+                           <input>
+                              <Glow />
+                           </input>
+                        </DropShadow>
+                     </effect>
+                  </Button>
                </children></AnchorPane>
             <GridPane alignment="CENTER" layoutX="560.0" layoutY="450.0" prefHeight="32.0" prefWidth="194.0">
                <columnConstraints>

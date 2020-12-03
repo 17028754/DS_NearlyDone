@@ -31,25 +31,31 @@ object Client extends JFXApp {
   val userRef = mainSystem.spawn(GameClient(), "ChatClient")
 
   // To join internet
- def joinPublicSeedNode(): Unit = {
-    val lookup: Future[Resolved] =
-     discovery.lookup(Lookup("wm.hep88.com").withPortName("hellosystem").withProtocol("tcp"), 1.second)
+// def joinPublicSeedNode(): Unit = {
+//    val lookup: Future[Resolved] =
+//     discovery.lookup(Lookup("wm.hep88.com").withPortName("hellosystem").withProtocol("tcp"), 1.second)
+//
+//    lookup.foreach (x => {
+//        val result = x.addresses
+//        result map { x =>
+//            val address = akka.actor.Address("akka", "HelloSystem", x.host, x.port.get)
+//            cluster.manager ! JoinSeedNodes(List(address))
+//        }
+//    })
+// }
 
-    lookup.foreach (x => {
-        val result = x.addresses
-        result map { x =>
-            val address = akka.actor.Address("akka", "HelloSystem", x.host, x.port.get)
-            cluster.manager ! JoinSeedNodes(List(address))
-        }
-    })
- }
+  def joinPublicSeedNode(): Unit = {
+    // TODO without DNS Server implementation
+    val address = akka.actor.Address("akka", "HelloSystem", "115.132.206.32", 25520)
+    cluster.manager ! JoinSeedNodes(List(address))
+  }
 
   // To join local network
  def joinLocalSeedNode(): Unit = {
     val address = akka.actor.Address("akka", "HelloSystem", MyConfiguration.localAddress.get.getHostAddress, 2222)
     cluster.manager ! JoinSeedNodes(List(address))
  }
-  joinLocalSeedNode()
+  joinPublicSeedNode()
 
 
   val rootResource: URL = getClass.getResource("view/RootLayout.fxml")
