@@ -20,8 +20,6 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
                            private val rule4Label: Label,
                            private val rule5Label: Label) {
 
-    var joinedServer: Boolean = false
-
     var invGame: Boolean = true
 
     var playerInvStatus: Boolean = true
@@ -46,6 +44,10 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
       updateList(ClientRef.listUser)
     }
 
+    if (ClientRef.joinedServer == true){
+      lblStatus.text = "Joined Server"
+    }
+
     def showRules(): Unit ={
       rule1Label.text = "This goal of this game is to get as many tetris blocks on the tree branch.\n"
       rule2Label.text = "The tree branch is brown and its located in the middle, lower part of the entire board.\n"
@@ -65,7 +67,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     }
 
     def handleJoin(action: ActionEvent): Unit = {
-      if (joinedServer == false) {
+      if (ClientRef.joinedServer == false) {
           chatClientRef map (_ ! GameClient.StartJoin(userName))
       }else{
         new Alert(AlertType.Warning) {
@@ -80,7 +82,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     def displayStatus(text: String, result: Boolean): Unit = {
         lblStatus.text = text
         if(result == true){
-          joinedServer = true
+          ClientRef.joinedServer = true
         }
     }
   def updateList(x: Iterable[User]): Unit ={

@@ -21,4 +21,6 @@ object ClientRef {
 
   var canBeInvited: Boolean = true
 
+  var joinedServer: Boolean = false
+
 }

@@ -46,7 +46,7 @@ object Client extends JFXApp {
 
   def joinPublicSeedNode(): Unit = {
     // TODO without DNS Server implementation
-    val address = akka.actor.Address("akka", "HelloSystem", "115.132.206.32", 25520)
+    val address = akka.actor.Address("akka", "HelloSystem", "42.191.53.17", 25520)
     cluster.manager ! JoinSeedNodes(List(address))
   }
 

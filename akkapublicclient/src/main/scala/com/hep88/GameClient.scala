@@ -68,7 +68,6 @@ object GameClient {
   final case class SendInvitationCheck(target: ActorRef[GameClient.Command]) extends Command
   final case class ReceiveInvitationCheck(status: Boolean) extends Command
 
-
   // Sending and receive invitation
   final case class SendInvitation(target: ActorRef[GameClient.Command], name: String) extends Command
   final case class ReceiveInvitation(name: String, from: ActorRef[GameClient.Command]) extends Command
@@ -154,7 +153,6 @@ object GameClient {
               members.clear()
               members ++= list
               Behaviors.same
-
             // Check if player can be invited
             case SendInvitationCheck(target) =>
               target ! ReceiveInvitationCheck(ClientRef.canBeInvited)
@@ -164,8 +162,6 @@ object GameClient {
                 MainWindow.control.checkPlayerInvitation(status)
               }
               Behaviors.same
-
-
             // Sending invitation
             case SendInvitation(target, name) =>
                 target ! ReceiveInvitation(name, context.self)
