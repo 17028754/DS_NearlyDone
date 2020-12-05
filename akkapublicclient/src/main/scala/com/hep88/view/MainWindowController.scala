@@ -93,6 +93,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
   def displayLeaveGameRoom(): Unit = {
     invGame = true
     startGame = false
+    ClientRef.canBeInvited = true
     new Alert(AlertType.Information) {
       initOwner(stage)
       title = "Information Dialog"
@@ -111,6 +112,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
       }.showAndWait()
     }
     else{
+      ClientRef.canBeInvited = true
       invGame = true
       startGame = false
       membersInGame.clear()
@@ -122,6 +124,7 @@ class MainWindowController(private var clientRef: ActorRef[GameClient.Command], 
     listGameRoom.items = new ObservableBuffer[User]() ++= x
     invGame = true
     startGame = false
+    ClientRef.canBeInvited = true
     membersInGame.clear()
   }
 

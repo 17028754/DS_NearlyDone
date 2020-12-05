@@ -20,6 +20,7 @@ object MyConfiguration {
 
 
     }
+
     def askForConfig(): Config = {
         var count = -1
         val addresses = (for (inf <- NetworkInterface.getNetworkInterfaces.asScala;
@@ -42,12 +43,12 @@ object MyConfiguration {
 
         val port = scala.io.StdIn.readLine.toInt
 
-        if (scala.io.StdIn.readLine("Is running locally?y/n").toUpperCase == "Y") {
+        if (scala.io.StdIn.readLine("Is running locally?y/n\n").toUpperCase == "Y") {
             runLocalOnly = Some(true)
             MyConfiguration(localAddress.get.getHostAddress(), "", port.toString)
         } else {
             runLocalOnly = Some(false)
-            MyConfiguration(scala.io.StdIn.readLine("Enter public address/domain name"),  localAddress.get.getHostAddress(), port.toString)
+            MyConfiguration(scala.io.StdIn.readLine("Enter public address/domain name\n"),  localAddress.get.getHostAddress(), port.toString)
         }
     }
     

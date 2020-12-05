@@ -28,26 +28,15 @@ object GameClient {
     unreachables.onChange{(ns, _) =>
         Platform.runLater {
             MainWindow.control.updateList(members.toList.filter(y => ! unreachables.exists (x => x == y.ref.path.address)))
+            MainWindow.control.updateSuddenleave(membersInGameRoom.toList.filter(y => ! unreachables.exists(x => x == y.ref.path.address)))
         }
     }
 
   val members = new ObservableHashSet[User]()
   members.onChange{(ns, _) =>
-    val checkList = membersInGameRoom.toList.map(_.toString)
-    var changeGameRoom = false
-    for(member <- ns){
-      if (checkList.contains(member.name)){
-        changeGameRoom = true
-      }
-    }
     Platform.runLater {
-        MainWindow.control.updateList(ns.toList.filter(y => ! unreachables.exists (x => x == y.ref.path.address)))
-    }
-    if (changeGameRoom == true){
-      membersInGameRoom.clear()
-      Platform.runLater{
-        MainWindow.control.updateSuddenleave(membersInGameRoom.toList)
-      }
+        MainWindow.control.updateList(ns.toList)
+        MainWindow.control.updateSuddenleave(membersInGameRoom.toList.filter(y => members.exists(x => x == y)))
     }
   }
 
@@ -148,7 +137,18 @@ object GameClient {
     def messageStarted(): Behavior[GameClient.Command] = Behaviors.receive[GameClient.Command] { (context, message) =>
         message match {
 
-            // Updating the list of players connected in the game lobby
+          // When a client becomes unreachable
+          case ReachabilityChange(reachabilityEvent) =>
+            reachabilityEvent match {
+              case UnreachableMember(member) =>
+                unreachables += member.address
+                Behaviors.same
+              case ReachableMember(member) =>
+                unreachables -= member.address
+                Behaviors.same
+            }
+
+          // Updating the list of players connected in the game lobby
             case MemberList(list: Iterable[User]) =>
               members.clear()
               members ++= list
@@ -366,7 +366,6 @@ object GameClient {
 
     def apply(): Behavior[GameClient.Command] =
         Behaviors.setup { context =>
-        var counter = 0
         // (1) a ServiceKey is a unique identifier for this actor
 
         Upnp.bindPort(context)
@@ -430,16 +429,6 @@ object GameClient {
                     members.clear()
                     members ++= x
                     messageStarted()
-
-                case ReachabilityChange(reachabilityEvent) =>
-                reachabilityEvent match {
-                    case UnreachableMember(member) =>
-                        unreachables += member.address
-                        Behaviors.same
-                    case ReachableMember(member) =>
-                        unreachables -= member.address
-                        Behaviors.same
-                }                    
                 case _=>
                     Behaviors.unhandled
                 

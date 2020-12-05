@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 object Client extends JFXApp {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val config = ConfigFactory.load()
-  val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askDevConfig().withFallback(config))
+  val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askForConfig().withFallback(config))
   val greeterMain: ActorSystem[Nothing] = mainSystem.toTyped
 
   val cluster = Cluster(greeterMain)
@@ -30,23 +30,10 @@ object Client extends JFXApp {
 
   val userRef = mainSystem.spawn(GameClient(), "ChatClient")
 
-  // To join internet
-// def joinPublicSeedNode(): Unit = {
-//    val lookup: Future[Resolved] =
-//     discovery.lookup(Lookup("wm.hep88.com").withPortName("hellosystem").withProtocol("tcp"), 1.second)
-//
-//    lookup.foreach (x => {
-//        val result = x.addresses
-//        result map { x =>
-//            val address = akka.actor.Address("akka", "HelloSystem", x.host, x.port.get)
-//            cluster.manager ! JoinSeedNodes(List(address))
-//        }
-//    })
-// }
 
   def joinPublicSeedNode(): Unit = {
     // TODO without DNS Server implementation
-    val address = akka.actor.Address("akka", "HelloSystem", "42.191.53.17", 25520)
+    val address = akka.actor.Address("akka", "HelloSystem", "115.132.206.32", 25520)
     cluster.manager ! JoinSeedNodes(List(address))
   }
 

@@ -1,11 +1,13 @@
 package com.hep88
 
+import akka.actor.Address
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.adapter._
+import akka.cluster.ClusterEvent.{ReachabilityEvent, ReachableMember, UnreachableMember}
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.scaladsl.AkkaManagement
 import akka.cluster.typed._
@@ -21,9 +23,20 @@ object ChatServer {
   case class Leave(name: String, from: ActorRef[GameClient.Command]) extends Command
   case class JoinGame(name1: String, from1: ActorRef[GameClient.Command], name2: String, from2: ActorRef[GameClient.Command]) extends Command
   case class GameCompleted(name1: String, from1: ActorRef[GameClient.Command], name2: String, from2: ActorRef[GameClient.Command]) extends Command
+  private final case class ReachabilityChange(reachabilityEvent: ReachabilityEvent) extends Command
   val ServerKey: ServiceKey[ChatServer.Command] = ServiceKey("ChatServer")
   val members = new ObservableHashSet[User]()
-  val membersInGame = new ObservableHashSet[User]()
+
+  val unreachables = new ObservableHashSet[Address]()
+  unreachables.onChange{(ns, _) =>
+    for (unreachable <- ns){
+      for(member <- members){
+        if(member.ref.path.address == unreachable){
+          members-= member
+        }
+      }
+    }
+  }
 
   members.onChange{(ns, _) =>
     for(member <- ns){
@@ -39,10 +52,24 @@ object ChatServer {
 
     context.system.receptionist ! Receptionist.Register(ServerKey, context.self)
 
+    val reachabilityAdapter = context.messageAdapter(ReachabilityChange)
+    Cluster(context.system).subscriptions ! Subscribe(reachabilityAdapter, classOf[ReachabilityEvent])
+
     Upnp.bindPort(context)
 
     Behaviors.receiveMessage { message =>
       message match {
+        // When a client becomes unreachable
+        case ReachabilityChange(reachabilityEvent) =>
+          reachabilityEvent match {
+            case UnreachableMember(member) =>
+              unreachables += member.address
+              Behaviors.same
+            case ReachableMember(member) =>
+              unreachables -= member.address
+              Behaviors.same
+          }
+
         case JoinChat(name, from) =>
           members += User(name, from)
           from ! GameClient.Joined(members.toList, true)
@@ -85,7 +112,7 @@ object ChatServer {
 object Server extends App {
 
   val config = ConfigFactory.load()
-  val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askDevConfig().withFallback(config)) //classic
+  val mainSystem = akka.actor.ActorSystem("HelloSystem", MyConfiguration.askForConfig().withFallback(config)) //classic
   val typedSystem: ActorSystem[Nothing] = mainSystem.toTyped
   val cluster = Cluster(typedSystem)
   cluster.manager ! Join(cluster.selfMember.address)
